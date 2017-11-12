@@ -14,45 +14,48 @@ import (
 )
 
 func main() {
-	flagExample := flag.Bool("example", false, "just dump out an example versioninfo.json to stdout")
-	flagOut := flag.String("o", "resource.syso", "output file name")
-	flagPlatformSpecific := flag.Bool("platform-specific", false, "output i386 and amd64 named resource.syso, ignores -o")
-	flagIcon := flag.String("icon", "", "icon file name")
-	flagManifest := flag.String("manifest", "", "manifest file name")
+	flagSet := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagComment := flag.String("comment", "", "StringFileInfo.Comments")
-	flagCompany := flag.String("company", "", "StringFileInfo.CompanyName")
-	flagDescription := flag.String("description", "", "StringFileInfo.FileDescription")
-	flagFileVersion := flag.String("file-version", "", "StringFileInfo.FileVersion")
-	flagInternalName := flag.String("internal-name", "", "StringFileInfo.InternalName")
-	flagCopyright := flag.String("copyright", "", "StringFileInfo.LegalCopyright")
-	flagTrademark := flag.String("trademark", "", "StringFileInfo.LegalTrademarks")
-	flagOriginalName := flag.String("original-name", "", "StringFileInfo.OriginalFilename")
-	flagPrivateBuild := flag.String("private-build", "", "StringFileInfo.PrivateBuild")
-	flagProductName := flag.String("product-name", "", "StringFileInfo.ProductName")
-	flagProductVersion := flag.String("product-version", "", "StringFileInfo.ProductVersion")
-	flagSpecialBuild := flag.String("special-build", "", "StringFileInfo.SpecialBuild")
+	flagExample := flagSet.Bool("example", false, "just dump out an example versioninfo.json to stdout")
+	flagOut := flagSet.String("o", "resource.syso", "output file name")
+	flagPlatformSpecific := flagSet.Bool("platform-specific", false, "output i386 and amd64 named resource.syso, ignores -o")
+	flagIcon := flagSet.String("icon", "", "icon file name")
+	flagManifest := flagSet.String("manifest", "", "manifest file name")
 
-	flagTranslation := flag.Int("translation", 0, "translation ID")
-	flagCharset := flag.Int("charset", 0, "charset ID")
+	flagComment := flagSet.String("comment", "", "StringFileInfo.Comments")
+	flagCompany := flagSet.String("company", "", "StringFileInfo.CompanyName")
+	flagDescription := flagSet.String("description", "", "StringFileInfo.FileDescription")
+	flagFileVersion := flagSet.String("file-version", "", "StringFileInfo.FileVersion")
+	flagInternalName := flagSet.String("internal-name", "", "StringFileInfo.InternalName")
+	flagCopyright := flagSet.String("copyright", "", "StringFileInfo.LegalCopyright")
+	flagTrademark := flagSet.String("trademark", "", "StringFileInfo.LegalTrademarks")
+	flagOriginalName := flagSet.String("original-name", "", "StringFileInfo.OriginalFilename")
+	flagPrivateBuild := flagSet.String("private-build", "", "StringFileInfo.PrivateBuild")
+	flagProductName := flagSet.String("product-name", "", "StringFileInfo.ProductName")
+	flagProductVersion := flagSet.String("product-version", "", "StringFileInfo.ProductVersion")
+	flagSpecialBuild := flagSet.String("special-build", "", "StringFileInfo.SpecialBuild")
 
-	flag64 := flag.Bool("64", false, "generate 64-bit binaries")
+	flagTranslation := flagSet.Int("translation", 0, "translation ID")
+	flagCharset := flagSet.Int("charset", 0, "charset ID")
 
-	flagVerMajor := flag.Int("ver-major", -1, "FileVersion.Major")
-	flagVerMinor := flag.Int("ver-minor", -1, "FileVersion.Minor")
-	flagVerPatch := flag.Int("ver-patch", -1, "FileVersion.Patch")
-	flagVerBuild := flag.Int("ver-build", -1, "FileVersion.Build")
+	flag64 := flagSet.Bool("64", false, "generate 64-bit binaries")
 
-	flagProductVerMajor := flag.Int("product-ver-major", -1, "ProductVersion.Major")
-	flagProductVerMinor := flag.Int("product-ver-minor", -1, "ProductVersion.Minor")
-	flagProductVerPatch := flag.Int("product-ver-patch", -1, "ProductVersion.Patch")
-	flagProductVerBuild := flag.Int("product-ver-build", -1, "ProductVersion.Build")
+	flagVerMajor := flagSet.Int("ver-major", -1, "FileVersion.Major")
+	flagVerMinor := flagSet.Int("ver-minor", -1, "FileVersion.Minor")
+	flagVerPatch := flagSet.Int("ver-patch", -1, "FileVersion.Patch")
+	flagVerBuild := flagSet.Int("ver-build", -1, "FileVersion.Build")
 
-	flag.Usage = func() {
+	flagProductVerMajor := flagSet.Int("product-ver-major", -1, "ProductVersion.Major")
+	flagProductVerMinor := flagSet.Int("product-ver-minor", -1, "ProductVersion.Minor")
+	flagProductVerPatch := flagSet.Int("product-ver-patch", -1, "ProductVersion.Patch")
+	flagProductVerBuild := flagSet.Int("product-ver-build", -1, "ProductVersion.Build")
+
+	flagSet.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [flags] <versioninfo.json>\n\nPossible flags:\n", os.Args[0])
-		flag.PrintDefaults()
+		flagSet.PrintDefaults()
 	}
-	flag.Parse()
+	var err error
+	flagSet.Parse(os.Args[2:])
 	if *flagExample {
 		io.WriteString(os.Stdout, example)
 		return
@@ -62,7 +65,6 @@ func main() {
 	if configFile == "" {
 		configFile = "versioninfo.json"
 	}
-	var err error
 	var input = io.ReadCloser(os.Stdin)
 	if configFile != "-" {
 		if input, err = os.Open(configFile); err != nil {
