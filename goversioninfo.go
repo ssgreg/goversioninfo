@@ -179,6 +179,8 @@ func (vi *VersionInfo) Walk() {
 // arch must be an architecture string accepted by coff.Arch, like "386" or "amd64"
 func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 
+	fmt.Printf("Creating %v for %v\n", filename, arch)
+
 	// Channel for generating IDs
 	newID := make(chan uint16)
 	go func() {
@@ -197,7 +199,7 @@ func (vi *VersionInfo) WriteSyso(filename string, arch string) error {
 	}
 
 	// ID 16 is for Version Information
-	coff.AddResource(16, 1, SizedReader{&vi.Buffer})
+	coff.AddResource(16, 1, SizedReader{bytes.NewBuffer(vi.Buffer.Bytes())})
 
 	// If manifest is enabled
 	if vi.ManifestPath != "" {
